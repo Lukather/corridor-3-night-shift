@@ -14,16 +14,27 @@ A small game about shifts: the ones you work, and the ones you choose.
 
 You are the newest hire in an office building. You do not steer the work - it happens on its own,
 every second, whether you watch or not. The only real decision is **which shift you are on**, and it
-changes everything:
+changes everything.
 
-- the **day shift** pays about twice as much, and puts the Consultant in the building with you, a
-  rival who takes credit for what you did
-- the **night shift** pays little and teaches fast. The auditor walks the corridors at 02:40, and
-  loose change turns up behind the vending machine
+A day is twelve bells long. What a bell pays you, and what it costs you, is the whole game:
 
-Swapping mid-day costs half of what is left of the day, so changing direction is never free. Five
-hearts: a mishap or an argument you lose costs one, a day that ends without damage gives one back.
-Thirty days, then the month closes on your rank and your score.
+- **day shift**: 8 to 16 tokens a bell, and 3 experience. The money is here. So is the Consultant, a
+  rival who takes credit for what you did: he turns up about one bell in 22, and half of those
+  meetings cost you a heart.
+- **night shift**: half the pay, 4 to 8 tokens a bell, but twice the learning, 6 experience. It is
+  quieter, and it taxes what you hoard: the auditor walks the corridors at 02:40, about one bell in
+  17, and takes 15% of whatever you are holding over 300 tokens. Loose change turns up behind the
+  vending machine about one bell in 13.
+
+So the day is where the money is, and the night is where you learn and where you survive longer.
+Swapping mid-day costs half of what is left of the day, so changing direction is never free - and a
+player who never changes shift gets fired about three times in five.
+
+Five hearts: a mishap, or an argument you lose, costs one; a day that ends without damage gives one
+back. Thirty days, then the month closes on your rank and your score.
+
+I measured all of this rather than guessed it; the numbers come out of a harness that plays whole
+30-day runs headlessly, and they are in the repository.
 
 **One button.** Press Shift, or click the button - that is the whole game.
 
