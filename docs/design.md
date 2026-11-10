@@ -51,17 +51,18 @@ pockets, and returns the results of every run. Three play styles, forty runs eac
 
 | play style | reaches day 30 | rank at the end | tokens | score |
 |---|---|---|---|---|
-| day shifts only | 16 of 40 | Manager (median) | 947 | 2201 |
+| day shifts only | 8 of 40 | Team Lead (median) | 780 | 1563 |
 | night shifts only | 21 of 40 | Head of Department (median) | 685 | 2674 |
-| mixed, swapping at midday | 22 of 40 | Head of Department (median) | 614 | 2591 |
+| mixed, swapping at midday | 21 of 40 | Head of Department (median) | 589 | 2582 |
 
-Reading: a player who never touches the mechanic holds the most tokens and gets fired most often -
-24 runs out of 40, against 19 and 18 for the other two. The game teaches its own verb. The night
-shift is the safe, slow path to rank; mixing is where the money for the vending machine comes from,
-and the thermos then pays it back at night. The gap between the two surviving styles is inside the
-noise of forty runs, so this is the honest statement: both work, and neither is the shortcut.
+Reading: the day shift holds the most tokens and survives the least - it is the expensive shift, not
+the safe one. A player who stays on it is fired in 32 runs out of 40, against 19 for the other two,
+which are inside the noise of forty runs of each other. The night is the safe, slow path to rank;
+mixing is where the money for the vending machine comes from, and the thermos then pays it back at
+night. This is the honest statement: nights alone work, days alone are a bet, and the good run
+changes shift.
 
-## Three times the harness lied
+## When the numbers lied
 
 Worth writing down, because every one of them was found by measuring rather than by reading code.
 
@@ -74,6 +75,14 @@ Worth writing down, because every one of them was found by measuring rather than
    became a drawn map of two thousand, a 30-day simulation repainted the DOM four thousand times -
    930 ms per run instead of 15. A harness that measures the screen instead of the game is not a
    harness.
+4. The Consultant was the day shift's danger, and in the original the argument is won by rolling a
+   twenty-sided die and adding the rank against 21: never certain, and impossible to win at the
+   bottom of a sixteen-rank ladder. Ported to the eight-rank ladder of this build it flattened into
+   the same roll against the same 21, which is a certainty from rank 5 upward - so the day's danger
+   became the day's best income. Measured over 20,000 bells: 873 wins to 2 losses, and a player who
+   stayed on days died in his first week, before the ladder could pay the odds back. The fix keeps
+   the shape and moves the threshold to 11 - 50% at Intern, 85% at Head of Department - and the
+   day-only run returns to 8 of 40.
 
 ## Out of scope, on purpose
 

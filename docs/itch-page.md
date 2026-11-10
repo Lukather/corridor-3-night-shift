@@ -19,16 +19,17 @@ changes everything.
 A day is twelve bells long. What a bell pays you, and what it costs you, is the whole game:
 
 - **day shift**: 8 to 16 tokens a bell, and 3 experience. The money is here. So is the Consultant, a
-  rival who takes credit for what you did: he turns up about one bell in 22, and half of those
-  meetings cost you a heart.
+  rival who takes credit for what you did: he turns up about one bell in 22, and you win that
+  argument about half the time at the bottom of the ladder, 85% of the time at the top.
 - **night shift**: half the pay, 4 to 8 tokens a bell, but twice the learning, 6 experience. It is
   quieter, and it taxes what you hoard: the auditor walks the corridors at 02:40, about one bell in
   17, and takes 15% of whatever you are holding over 300 tokens. Loose change turns up behind the
   vending machine about one bell in 13.
 
 So the day is where the money is, and the night is where you learn and where you survive longer.
-Swapping mid-day costs half of what is left of the day, so changing direction is never free - and a
-player who never changes shift gets fired about three times in five.
+Swapping mid-day costs half of what is left of the day, so changing direction is never free - and it
+matters: a player who stays on day shifts is fired about four times in five, while nights alone last
+the whole month about half the time.
 
 Five hearts: a mishap, or an argument you lose, costs one; a day that ends without damage gives one
 back. Thirty days, then the month closes on your rank and your score.

@@ -60,6 +60,7 @@
   .turno-riga .cifre{display:inline;margin-left:8px;color:inherit}
   .turno-riga.qui span{color:inherit}
   .turno-riga .male{color:var(--male)}
+  .turno-riga i{font-style:normal;font-weight:700}
 
   #registro{list-style:none;margin:11px 0 0;padding:0;font-size:13px;max-height:132px;overflow:auto}
   #registro li{border-bottom:1px dotted var(--riga);padding:4px 0;display:flex;gap:8px}
@@ -433,7 +434,14 @@ function battito(){
 
 function duello(m){
   S.incontri++;
-  if (caso() < 0.5 + 0.12 * titoloDi(S.xp).livello){
+  /* Il confronto si vince con il grado, ma non e' mai certo. Stessa forma della
+     formula del motore vero (un tiro da venti piu' il grado contro una soglia),
+     con la soglia riportata sulla scala corta: la' i gradi sono sedici e la
+     soglia e' 21, qui sono otto e la soglia e' 11. Cosi' si vince il 50% da
+     Intern e l'85% da Head of Department, e il tetto esce dalla scala invece di
+     essere un numero messo a mano. */
+  const livello = titoloDi(S.xp).livello;
+  if (Math.floor(caso() * 20) + 1 + livello >= 11){
     const g = Math.round(90 * m.gettoni);
     S.gettoni += g; S.xp += Math.round(10 * m.xp);
     scrivi(`the Consultant tries to take credit. You had receipts. +${g} tokens`, 0);
@@ -651,8 +659,8 @@ function disegnaTurni(){
   document.getElementById("riga-giorno").innerHTML =
     `<b>day shift</b><span class="cifre">${gb} to ${ga} tokens a bell · ` +
     `${Math.round(x.base * x.giorno)} xp a bell</span>` +
-    `<span class="male">risk · the Consultant turns up 1 bell in ${unoSu(C.consulente)}, ` +
-    `and half of those cost you a heart</span>`;
+    `<span class="male">risk · the Consultant turns up 1 bell in ${unoSu(C.consulente)}; ` +
+    `at your rank you win that argument <i id="odds-consulente">0%</i> of the time</span>`;
   document.getElementById("riga-notte").innerHTML =
     `<b>night shift</b><span class="cifre">${nb} to ${na} tokens a bell · ` +
     `${Math.round(x.base * x.notte)} xp a bell</span>` +
@@ -673,6 +681,8 @@ function disegna(){
   document.getElementById("turno").textContent = NOMI[S.turno];
   document.getElementById("riga-giorno").classList.toggle("qui", S.turno === "giorno");
   document.getElementById("riga-notte").classList.toggle("qui", S.turno === "notte");
+  const odds = document.getElementById("odds-consulente");
+  if (odds) odds.textContent = (50 + t.livello * 5) + "%";
   const restanti = S.cambi - S.cambiUsati;
   document.getElementById("conto").innerHTML =
     `${restanti} change${restanti === 1 ? "" : "s"} left today`;
