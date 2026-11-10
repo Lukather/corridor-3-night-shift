@@ -37,6 +37,7 @@
   body.night .scena{background:#0d1015}
   .velo{position:absolute;inset:0;background:#050a14;opacity:var(--velo);pointer-events:none;transition:opacity .5s}
 
+  .didascalia{margin:5px 0 0;font-size:11.5px;color:var(--tenue);letter-spacing:.02em}
   .comandi{display:flex;gap:8px;align-items:stretch;margin-top:10px}
   button{font:inherit;cursor:pointer;border:2px solid var(--inchiostro);background:transparent;
     color:var(--inchiostro);padding:9px 12px}
@@ -76,6 +77,10 @@
   .foglio p{margin:0 0 10px;font-size:13px}
   .foglio .riga{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
   .fine{font-size:34px;letter-spacing:.1em;margin:6px 0 10px}
+  .scala{border-top:1.5px solid var(--inchiostro);margin:4px 0 12px;padding-top:8px}
+  .gradino{display:flex;justify-content:space-between;font-size:12.5px;padding:1.5px 0;color:var(--tenue)}
+  .gradino.qui{color:var(--inchiostro);font-weight:700;border-top:1px solid var(--riga);border-bottom:1px solid var(--riga)}
+  .gradino.dopo{opacity:.55}
   @media (max-width:520px){ body{font-size:14px} .comandi{flex-wrap:wrap} .conto{min-width:0} }
 </style>
 </head>
@@ -97,6 +102,7 @@
     <svg id="scena" viewBox="0 0 240 64" shape-rendering="crispEdges" role="img" aria-label="Corridor 3"></svg>
     <div class="velo"></div>
   </div>
+  <p class="didascalia" id="didascalia"></p>
 
   <div class="comandi">
     <button id="cambia">Swap shift<kbd>Shift</kbd></button>
@@ -177,17 +183,86 @@ const FATTI = {
    sprite di 8x8 pixel, la finestra e' larga quanto la mappa e i toni cambiano
    col turno. Stessi disegni del gioco da cui viene, cosi' la stanza e' la stessa. */
 const MAP_W = 30;
-const RIGA_EROE = 5;
-const MAPPA = [
-  "##############################",
-  "##W####W####W####W####W####W##",
-  "#............................#",
-  "#.D....D....D....D....D......#",
-  "#.........Y...........Y......#",
-  "#............................#",
-  "#............................#",
-  "#####  #########  ############",
+const STANZE = [
+  { nome:"Reception", nota:"the lobby, the porter's desk, the visitors' book", righe:[
+    "##############################",
+    "##W#######W#########W#########",
+    "#............................#",
+    "#..D......D.......D..........#",
+    "#............................#",
+    "#.......Y..........P.........#",
+    "#............................#",
+    "##############################"] },
+  { nome:"Open Space", nota:"rows of desks, headphones, sighs", righe:[
+    "##############################",
+    "##W####W####W####W####W####W##",
+    "#............................#",
+    "#.D....D....D....D....D......#",
+    "#.........Y...........Y......#",
+    "#............................#",
+    "#............................#",
+    "#####  #########  ############"] },
+  { nome:"Meeting Room", nota:"the long table, a projector with no remote", righe:[
+    "##############################",
+    "###W#####W######W#####W#######",
+    "#............B...............#",
+    "#.........TTTTTTTT...........#",
+    "#.........TTTTTTTT...........#",
+    "#....Y.................Y.....#",
+    "#............................#",
+    "##############################"] },
+  { nome:"Kitchen", nota:"the coffee machine, the contested fridge", righe:[
+    "##############################",
+    "########W###########W#########",
+    "#.CCC.......FFF..............#",
+    "#............................#",
+    "#........TT......Y...........#",
+    "#............................#",
+    "#............................#",
+    "#############  ###############"] },
+  { nome:"Archive", nota:"boxes, dust, a filing system only one person understands", righe:[
+    "##############################",
+    "####W####################W####",
+    "#.AAAAAAAAAAAAAAAAAAAAAAAA...#",
+    "#............................#",
+    "#.AAAAAAAAAAAAAAAAAAAAAAAA...#",
+    "#............................#",
+    "#............................#",
+    "##############################"] },
+  { nome:"Roof Terrace", nota:"a chair, a view of the buildings next door", righe:[
+    "##############################",
+    "#RRRRRRRRRRRRRRRRRRRRRRRRRRR.#",
+    "#............................#",
+    "#..Y......................Y..#",
+    "#............................#",
+    "#............................#",
+    "#............................#",
+    "##############################"] },
+  { nome:"Executive Floor", nota:"carpet, quiet, doors that close", righe:[
+    "##############################",
+    "##############################",
+    "#.D..D..D..D..D..D..D..D..D..#",
+    "#............................#",
+    "#.Y........................Y.#",
+    "#............................#",
+    "#............................#",
+    "##############################"] },
 ];
+function stanzaOra(){ return STANZE[Math.min(titoloDi(S.xp).livello, STANZE.length - 1)]; }
+
+/* l'eroe sta in una cella libera, mai sopra un mobile o dentro un muro */
+function postoEroe(righe, tick){
+  const hx = 2 + (tick * 7) % (MAP_W - 5);
+  for (const r of [6, 4, 5, 2, 3]){
+    for (let scarto = 0; scarto < 7; scarto++){
+      for (const cand of [hx + scarto, hx - scarto]){
+        if (cand >= 1 && cand < MAP_W - 1 && righe[r][cand] === ".") return [cand, r];
+      }
+    }
+  }
+  return [hx, 5];
+}
+
 const SPRITE = {
   ".": Array(8).fill("--------"),
   "#": Array(8).fill("########"),
@@ -214,15 +289,18 @@ function colonnaEroe(){ return 2 + (S.tick * 7) % (MAP_W - 5); }
 
 function dipinto(){
   const tinte = TINTE[S.turno];
-  const righe = MAPPA.map(r => [...r]);
-  const col = colonnaEroe();
-  if (S.stella){ const c = col + 2; if (c < MAP_W - 1) righe[RIGA_EROE][c] = "*"; }
-  if (Date.now() < (S.rivaleFino || 0)){ const c = col + 4; if (c < MAP_W - 1) righe[RIGA_EROE][c] = "X"; }
-  righe[RIGA_EROE][col] = "H";
+  const stanza = stanzaOra();
+  const righe = stanza.righe.map(r => [...r]);
+  const [col, riga] = postoEroe(righe, S.tick);
+  if (S.stella){ const c = col + 2; if (c < MAP_W - 1) righe[riga][c] = "*"; }
+  if (Date.now() < (S.rivaleFino || 0)){ const c = col + 4; if (c < MAP_W - 1) righe[riga][c] = "X"; }
+  righe[riga][col] = "H";
 
+  const colonna = Math.max(0, Math.min(col - 9, MAP_W - 18));
   const pezzi = [];
-  righe.forEach((riga, y) => {
-    riga.forEach((ch, x) => {
+  righe.forEach((r, y) => {
+    r.forEach((ch, x) => {
+      if (x < colonna || x >= colonna + 18) return;   // fuori dalla finestra: non si disegna
       const sprite = SPRITE[ch];
       if (!sprite) return;
       sprite.forEach((sr, sy) => {
@@ -237,10 +315,15 @@ function dipinto(){
       });
     });
   });
+  const disegno = pezzi.map(([a,b,c,t]) => `<rect x="${a}" y="${b}" width="${c}" height="1" fill="${tinte[t]}"/>`).join("");
+  const impronta = stanza.nome + S.turno + colonna + ":" + disegno.length;
+  if (impronta === dipinto.ultima) return;          // niente di nuovo: non si tocca il DOM
+  dipinto.ultima = impronta;
   const scena = document.getElementById("scena");
-  const da = Math.max(0, Math.min(col - 9, MAP_W - 18));
-  scena.setAttribute("viewBox", `${da * 8} 0 144 64`);
-  scena.innerHTML = pezzi.map(([a,b,c,t]) => `<rect x="${a}" y="${b}" width="${c}" height="1" fill="${tinte[t]}"/>`).join("");
+  scena.setAttribute("viewBox", `${colonna * 8} 0 144 64`);
+  scena.innerHTML = disegno;
+  const dida = document.getElementById("didascalia");
+  if (dida) dida.textContent = `${stanza.nome} - ${stanza.nota}`;
 }
 
 /* ------------------------------------------------------------------- stato */
@@ -412,6 +495,7 @@ function fineGiornata(titoloPrima){
     </table>
     ${promosso ? `<p><b>Promoted: ${dopo.nome}.</b> Somebody has to update the org chart.</p>` : ""}
     ${curato ? "<p>Nothing broke today. You get a bit of yourself back.</p>" : ""}
+    <div class="scala">${scaletta(dopo)}</div>
     <p>${S.giorno >= C.giorni ? "Last day of the month." : "The building empties out. Tomorrow you can pick a different shift."}</p>
     <div class="riga"><button id="domani">${S.giorno >= C.giorni ? "Close the month" : "Go home"}</button></div>
   `);
@@ -432,10 +516,18 @@ function chiudiGiornata(){
 }
 
 function nuovoGiorno(){
+  const primaStanza = stanzaOra().nome;
   S.giorno++; S.tick = 0; S.cambiUsati = 0;
   S.cambi = 1 + (S.comprati.caffe || 0);
   S.persoOggi = false;
   S.finita = false;
+  if (stanzaOra().nome !== primaStanza) scrivi(`you have been moved to the ${stanzaOra().nome}.`, 0);
+}
+
+function scaletta(adesso){
+  return C.titoli.map(([soglia, nome], i) =>
+    `<div class="gradino ${i === adesso.livello ? "qui" : (i > adesso.livello ? "dopo" : "")}">` +
+    `<span>${nome}</span>${i === adesso.livello ? "<b>you are here</b>" : ""}</div>`).join("");
 }
 
 function fine(motivo){
@@ -542,8 +634,10 @@ avvia();
 
 /* --------- banco di prova: misura partite intere senza grafica --------- */
 function prova(policy, n, origine){
-  const salva = { apri, scrivi, suona, disegna, fineGiornata, fine };
-  apri = () => {}; scrivi = () => {}; suona = () => {};
+  const salva = { apri, scrivi, suona, disegna, dipinto, fineGiornata, fine };
+  // anche il disegno va staccato: da quando la stanza e' fatta di rettangoli,
+  // simulare 30 giorni dipingendo il DOM a ogni battito e' lentissimo
+  apri = () => {}; scrivi = () => {}; suona = () => {}; disegna = () => {}; dipinto = () => {};
   fineGiornata = () => {
     chiudiGiornata();
     S.finita = true;
@@ -557,7 +651,8 @@ function prova(policy, n, origine){
     avvia();
     S._s = origine + i * 7919;
     let guardia = 0;
-    while (!S.finita && S.giorno <= C.giorni && guardia++ < 40000){
+    const scadenza = Date.now() + 4000;   // tetto di tempo: mai piu' una pagina bloccata
+    while (!S.finita && S.giorno <= C.giorni && guardia++ < 4000 && Date.now() < scadenza){
       if (policy === "notte" && S.turno === "giorno") cambiaTurno();
       else if (policy === "meta" && S.turno === "giorno" && S.tick >= Math.floor(C.tickGiorno / 2)) cambiaTurno();
       else if (policy === "giorno" && S.turno === "notte") cambiaTurno();
@@ -576,7 +671,7 @@ function prova(policy, n, origine){
       ritrovamenti:S.ritrovamenti, esito:S.esito || "in corso",
       punteggio:S.gettoni + t.livello * 300, comprati:JSON.stringify(S.comprati)});
   }
-  apri = salva.apri; scrivi = salva.scrivi; suona = salva.suona; disegna = salva.disegna;
+  apri = salva.apri; scrivi = salva.scrivi; suona = salva.suona; disegna = salva.disegna; dipinto = salva.dipinto;
   fineGiornata = salva.fineGiornata; fine = salva.fine;
   avvia();
   return esiti;

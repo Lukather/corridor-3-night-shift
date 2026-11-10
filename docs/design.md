@@ -13,6 +13,18 @@ Swapping mid-day costs half of what is left of the day, so a change of direction
 Five hearts. A mishap, or an argument you lose, costs one; a day that ends without damage gives one
 back. Thirty days, then the month closes and you get a score.
 
+## The building
+
+Seven rooms, and you move through them as you are promoted: Reception, Open Space, Meeting Room,
+Kitchen, Archive, Roof Terrace, Executive Floor. The room is where the game is looked at, so it
+carries the progress: a promotion changes your surroundings before it changes anything else.
+
+The rooms are drawn, not painted. Every room is a map of 30 cells by 8, each character a sprite of
+8x8 pixels, four tones. The view is an 18-cell window that follows the hero, so the pixels stay
+large enough to read. The hero walks with the clock, the Consultant appears in the room when he
+turns up, and a find leaves a mark for one tick. The night shift does not filter the room: it maps
+the four tones to their night values, which keeps the drawing crisp instead of washing it out.
+
 ## The numbers
 
 | | day shift | night shift |
@@ -35,24 +47,33 @@ and a thermos (+30% night tokens, three times).
 
 `index.html` carries a small harness: `window.Corridor3.prova(policy, runs, seed)` plays whole
 30-day games headlessly, buying from the vending machine when it can afford to without emptying its
-pockets, and returns the results of every run. Three play styles, sixteen runs each:
+pockets, and returns the results of every run. Three play styles, eight runs each:
 
 | play style | reaches day 30 | rank at the end | tokens | score |
 |---|---|---|---|---|
-| day shifts only | 5 of 16 | Manager (median) | 823 | 1954 |
-| night shifts only | 9 of 16 | Junior Clerk (median) | 599 | 2214 |
-| mixed, swapping at midday | 11 of 16 | Head of Department (median) | 570 | 2331 |
+| day shifts only | 2 of 8 | Clerk (median) | 564 | 1737 |
+| night shifts only | 6 of 8 | Head of Department (median) | 646 | 2471 |
+| mixed, swapping at midday | 6 of 8 | Head of Department (median) | 569 | 2461 |
 
 Reading: a player who never touches the mechanic earns the most money per day and gets fired most
-often. The night shift is the safe, slow path to rank. Mixing - take the day when you need money,
-recover at night - survives most runs and scores highest. That is the shape the design wants, and
-it is why the score counts rank, not just tokens.
+often - the game teaches its own verb. The night shift is the safe, slow path to rank; mixing is
+where the money for the vending machine comes from, and the thermos then pays it back at night.
+The gap between the two surviving styles is inside the noise of eight runs, so this is the honest
+statement: both work, and neither is the shortcut.
 
-Two bugs worth remembering, both found by measuring rather than by reading the code: an early
-version gave a 17% mishap rate on the day shift instead of 3.5%, because the threshold bands of
-the different events were being added together across shifts; and a *missing* day-closing routine
-in the harness made the simulated game harder than the real one, so the measurements were of a
-game nobody would play.
+## Three times the harness lied
+
+Worth writing down, because every one of them was found by measuring rather than by reading code.
+
+1. An early version gave a 17% mishap rate on the day shift instead of 3.5%, because the threshold
+   bands of the different events were added together across shifts. A band for one shift has to
+   exclude the ranges of the events that cannot happen on it.
+2. The harness did not apply the end-of-day routine, so the simulated game was harder than the real
+   one: a missing call in the stub made every play style look unplayable.
+3. It did not stub the renderer. Harmless while the room was three rectangles; after the room
+   became a drawn map of two thousand, a 30-day simulation repainted the DOM four thousand times -
+   930 ms per run instead of 15. A harness that measures the screen instead of the game is not a
+   harness.
 
 ## Out of scope, on purpose
 
