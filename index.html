@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corridor 3: Night Shift</title>
+<style>
+  :root{
+    --carta:#e8e4da; --inchiostro:#16150f; --tenue:#6b6558; --riga:#c9c3b5;
+    --accento:#8a5a1e; --bene:#3f6b3a; --male:#8f2f22;
+    --velo:0;
+  }
+  body.night{
+    --carta:#191c22; --inchiostro:#d7d3c6; --tenue:#8b93a1; --riga:#2e333d;
+    --accento:#c9a227; --bene:#7fae72; --male:#d2705f;
+    --velo:0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--carta);color:var(--inchiostro);
+    font:15px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .app{max-width:760px;margin:0 auto;padding:12px 14px 26px}
+  h1{font-size:17px;margin:0;letter-spacing:.14em;text-transform:uppercase}
+  h1 small{display:block;font-size:11px;letter-spacing:.24em;color:var(--tenue);margin-top:2px}
+
+  .hud{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start;
+    border-bottom:2px solid var(--inchiostro);padding-bottom:8px}
+  .dati{text-align:right;font-size:12px;line-height:1.6}
+  .dati b{font-size:15px}
+  .barra{height:9px;border:1.5px solid var(--inchiostro);margin-top:6px;position:relative;background:transparent}
+  .barra i{position:absolute;inset:0 auto 0 0;background:var(--inchiostro);width:0;transition:width .3s}
+  .barra.tratteggio i{background:repeating-linear-gradient(90deg,var(--inchiostro) 0 6px,transparent 6px 10px)}
+
+  .scena{margin:10px 0 0;border:2px solid var(--inchiostro);position:relative;background:#cdc7b8;overflow:hidden}
+  body.night .scena{background:#0d1015;border-color:var(--inchiostro)}
+  .scena svg{display:block;width:100%;height:auto}
+  .scena{background:#e7e2d8}
+  body.night .scena{background:#0d1015}
+  .velo{position:absolute;inset:0;background:#050a14;opacity:var(--velo);pointer-events:none;transition:opacity .5s}
+
+  .comandi{display:flex;gap:8px;align-items:stretch;margin-top:10px}
+  button{font:inherit;cursor:pointer;border:2px solid var(--inchiostro);background:transparent;
+    color:var(--inchiostro);padding:9px 12px}
+  button:hover:not(:disabled){background:var(--inchiostro);color:var(--carta)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  #cambia{flex:1;font-weight:700;letter-spacing:.1em}
+  #cambia kbd{border:1.5px solid currentColor;padding:1px 5px;font:inherit;font-size:12px;margin-left:6px}
+  .conto{font-size:12.5px;color:var(--inchiostro);align-self:center;text-align:right;min-width:104px;line-height:1.35}
+  .conto small{color:var(--tenue);font-size:11px}
+
+  #registro{list-style:none;margin:11px 0 0;padding:0;font-size:13px;max-height:132px;overflow:auto}
+  #registro li{border-bottom:1px dotted var(--riga);padding:4px 0;display:flex;gap:8px}
+  #registro li span.m{width:1.1em;text-align:center;color:var(--accento)}
+  #registro{font-size:13.5px}
+  #registro li.e0 span.m{color:var(--bene)}
+  #registro li.e1 span.m{color:var(--male)}
+  #registro li.nuovo{animation:entra .35s ease-out}
+  @keyframes entra{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+
+  .cassa{margin-top:12px;border-top:2px solid var(--inchiostro);padding-top:10px}
+  .cassa summary{font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:2px 0}
+  .cassa[open] summary{margin-bottom:9px}
+  .voce{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;
+    border:1.5px solid var(--riga);padding:7px 9px;margin-bottom:6px}
+  .voce.fatta{opacity:.55}
+  .voce b{display:block;font-size:13px}
+  .voce small{color:var(--tenue);font-size:11px}
+
+  dialog{border:2px solid var(--inchiostro);background:var(--carta);color:var(--inchiostro);
+    padding:0;max-width:520px;width:92%}
+  dialog::backdrop{background:rgba(10,10,8,.6)}
+  .foglio{padding:16px}
+  .foglio h3{margin:0 0 10px;font-size:14px;letter-spacing:.16em;text-transform:uppercase}
+  .foglio table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px}
+  .foglio td{padding:3px 0;border-bottom:1px dotted var(--riga)}
+  .foglio td:last-child{text-align:right}
+  .foglio p{margin:0 0 10px;font-size:13px}
+  .foglio .riga{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+  .fine{font-size:34px;letter-spacing:.1em;margin:6px 0 10px}
+  @media (max-width:520px){ body{font-size:14px} .comandi{flex-wrap:wrap} .conto{min-width:0} }
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="hud">
+    <div>
+      <h1>Corridor 3<small>a game about shifts</small></h1>
+    </div>
+    <div class="dati">
+      day <b id="giorno">1</b> / 30 · <span id="titolo">Intern</span><br>
+      <b id="turno">day shift</b><br>
+      <b id="gettoni">0</b> tokens · <span id="reputazione">♥ 5</span>
+      <div class="barra tratteggio"><i id="xp"></i></div>
+    </div>
+  </header>
+
+  <div class="scena">
+    <svg id="scena" viewBox="0 0 240 64" shape-rendering="crispEdges" role="img" aria-label="Corridor 3"></svg>
+    <div class="velo"></div>
+  </div>
+
+  <div class="comandi">
+    <button id="cambia">Swap shift<kbd>Shift</kbd></button>
+    <div class="conto" id="conto"></div>
+  </div>
+
+  <ol id="registro"></ol>
+
+  <details class="cassa">
+    <summary>The vending machine</summary>
+    <div id="voci"></div>
+  </details>
+</main>
+
+<dialog id="modale"><div class="foglio" id="foglio"></div></dialog>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------------- taratura */
+const C = {
+  tickMs: 900,          // un battito
+  tickGiorno: 12,       // battiti in una giornata
+  giorni: 30,
+  gettoni: { base: 7, giorno: 1.4, notte: 0.7 },
+  xp:      { base: 4, giorno: 0.75, notte: 1.6 },
+  incidente:{ giorno: 0.035, notte: 0.04 },
+  consulente: 0.045,    // solo di giorno
+  revisore: 0.06,       // solo di notte
+  ritrovamento: 0.08,   // solo di notte
+  tettoTassa: 300,      // oltre questo il revisore morde
+  tassaRevisore: 0.15,
+  reputazione: 5,
+  recupero: 1,          // cuore restituito da una giornata senza danni
+  titoli: [
+    [0, "Intern"], [75, "Trainee"], [200, "Junior Clerk"], [400, "Clerk"],
+    [650, "Senior Clerk"], [950, "Team Lead"], [1350, "Manager"], [1800, "Head of Department"],
+  ],
+  cassa: [
+    { id:"sedia",  nome:"Lumbar Throne",  nota:"+15% tokens, forever",  costo:250, passo:1.5, volte:5 },
+    { id:"corso",  nome:"Night Classes",  nota:"+20% experience",       costo:400, passo:1.6, volte:3 },
+    { id:"caffe",  nome:"Espresso Machine",nota:"one extra shift change a day", costo:600, passo:2, volte:2 },
+    { id:"assicura",nome:"Health Cover",  nota:"two extra hearts, and they fill up now", costo:500, passo:2, volte:1 },
+    { id:"termos", nome:"Thermos",        nota:"+30% tokens on night shift", costo:300, passo:1.7, volte:3 },
+  ],
+};
+
+/* ------------------------------------------------------------ testo e fato */
+const NOMI = { giorno:"day shift", notte:"night shift" };
+
+const FATTI = {
+  giorno: [
+    ["a meeting that could have been an email", 0],
+    ["you fixed something nobody reported", 1],
+    ["someone brought biscuits", 1],
+    ["a two-hour call about the third quarter", 0],
+    ["you found the stapler that vanished in 2019", 1],
+    ["the printer jammed again", 0],
+    ["you answered three questions in a row", 1],
+    ["the air conditioning is having opinions", 0],
+    ["you got copied into a thread that will outlive you", 0],
+    ["a client said thank you, apparently sincerely", 1],
+  ],
+  notte: [
+    ["the corridor hums. you get through the backlog", 1],
+    ["nobody is here. you work at your own speed", 1],
+    ["the lift opens on its own. it does this", 0],
+    ["you refill the whole shelf of paper", 1],
+    ["the security guard tells you about his boat", 0],
+    ["you deleted a folder called FINAL_final_v3", 1],
+    ["the vending machine dispenses two of something", 1],
+    ["a light flicks on down the corridor, then off", 0],
+  ],
+};
+
+/* ------------------------------------------------------------------ la stanza
+   La stanza e' disegnata, non incollata: ogni carattere della mappa diventa uno
+   sprite di 8x8 pixel, la finestra e' larga quanto la mappa e i toni cambiano
+   col turno. Stessi disegni del gioco da cui viene, cosi' la stanza e' la stessa. */
+const MAP_W = 30;
+const RIGA_EROE = 5;
+const MAPPA = [
+  "##############################",
+  "##W####W####W####W####W####W##",
+  "#............................#",
+  "#.D....D....D....D....D......#",
+  "#.........Y...........Y......#",
+  "#............................#",
+  "#............................#",
+  "#####  #########  ############",
+];
+const SPRITE = {
+  ".": Array(8).fill("--------"),
+  "#": Array(8).fill("########"),
+  "W": ["########","#---##-#","#---##-#","#---##-#","#---##-#","#---##-#","#---##-#","########"],
+  "D": ["........","########","#wwwwww#","########",".#....#.",".#....#.","........","++++++++"],
+  "T": ["........","........","########","#wwwwww#","#wwwwww#","########",".#....#.","++++++++"],
+  "C": ["........",".#####..",".#www#..",".#####..",".#+++#..",".#####..","........","..++++.."],
+  "F": ["........",".#####..",".#www#..",".#www#..",".#www#..",".#####..","........","..++++.."],
+  "A": ["........","########","#w#ww#w#","########","#w#ww#w#","########","........","++++++++"],
+  "B": ["........","########","#wwwwww#","#ww##ww#","#wwwwww#","########","........","..++++.."],
+  "R": ["........","##.#.#.#","##.#.#.#","########","........","........","........","........"],
+  "Y": ["........","...##...","..#ww#..",".#wwww#.","..####..","...##...","..####..","...++..."],
+  "P": ["........",".#####..",".#wwww#.",".#wwww#.",".#++++#.",".######.","..####..",".++++++."],
+  "*": ["........","...##...","...##...",".######.",".######.","...##...","...##...","........"],
+  "H": ["........",".w####w.",".w####w.","w######w","#w####w#",".w####w.",".w#ww#w.",".w++++w."],
+  "X": [".w####w.",".w####w.","w######w","#w####w#",".w####w.",".w####w.",".w####w.",".w++++w."],
+};
+const TINTE = {
+  giorno: { "#":"#111111", "+":"#6f6a62", "-":"#b8b2a6", "w":"#ffffff", ".":"#e7e2d8" },
+  notte:  { "#":"#d9d5c8", "+":"#8b93a1", "-":"#2e333d", "w":"#0d1015", ".":"#0d1015" },
+};
+
+function colonnaEroe(){ return 2 + (S.tick * 7) % (MAP_W - 5); }
+
+function dipinto(){
+  const tinte = TINTE[S.turno];
+  const righe = MAPPA.map(r => [...r]);
+  const col = colonnaEroe();
+  if (S.stella){ const c = col + 2; if (c < MAP_W - 1) righe[RIGA_EROE][c] = "*"; }
+  if (Date.now() < (S.rivaleFino || 0)){ const c = col + 4; if (c < MAP_W - 1) righe[RIGA_EROE][c] = "X"; }
+  righe[RIGA_EROE][col] = "H";
+
+  const pezzi = [];
+  righe.forEach((riga, y) => {
+    riga.forEach((ch, x) => {
+      const sprite = SPRITE[ch];
+      if (!sprite) return;
+      sprite.forEach((sr, sy) => {
+        let inizio = null, corrente = null;
+        for (let sx = 0; sx <= 8; sx++){
+          const c = sx < 8 ? sr[sx] : ".";
+          if (c !== corrente){
+            if (corrente && corrente !== ".") pezzi.push([x*8+inizio, y*8+sy, sx-inizio, corrente]);
+            corrente = c; inizio = sx;
+          }
+        }
+      });
+    });
+  });
+  const scena = document.getElementById("scena");
+  const da = Math.max(0, Math.min(col - 9, MAP_W - 18));
+  scena.setAttribute("viewBox", `${da * 8} 0 144 64`);
+  scena.innerHTML = pezzi.map(([a,b,c,t]) => `<rect x="${a}" y="${b}" width="${c}" height="1" fill="${tinte[t]}"/>`).join("");
+}
+
+/* ------------------------------------------------------------------- stato */
+const T = {};   // titoli in forma {livello, nome, soglia}
+C.titoli.forEach(([soglia, nome], i) => T[i] = { soglia, nome });
+
+let S = null;
+function nuovo(seed){
+  return {
+    _s: (seed >>> 0) || 987654321,
+    giorno:1, tick:0, persoOggi:false, turno:"giorno", gettoni:0, xp:0, reputazione:C.reputazione,
+    cambi:1, cambiUsati:0, comprati:{}, registro:[], finita:false, cambiTotali:0,
+    incontri:0, ritrovamenti:0, incidenti:0,
+  };
+}
+
+/* il caso e' riproducibile: due partite con la stessa origine si somigliano */
+function caso(){
+  S._s = (S._s * 1664525 + 1013904223) % 4294967296;
+  return S._s / 4294967296;
+}
+
+/* ------------------------------------------------------------------ misure */
+function moltiplicatori(){
+  const sedia = 1 + 0.15 * (S.comprati.sedia || 0);
+  const termos = (S.turno === "notte" ? 1 + 0.3 * (S.comprati.termos || 0) : 1);
+  return {
+    gettoni: (S.turno === "giorno" ? C.gettoni.giorno : C.gettoni.notte) * sedia * termos,
+    xp: (S.turno === "giorno" ? C.xp.giorno : C.xp.notte) * (1 + 0.2 * (S.comprati.corso || 0)),
+  };
+}
+function titoloDi(xp){
+  let nome = T[0].nome, livello = 0;
+  for (let i = 0; i < C.titoli.length; i++) if (xp >= C.titoli[i][0]) { nome = C.titoli[i][1]; livello = i; }
+  return { nome, livello };
+}
+function tettoCuori(){ return C.reputazione + 2 * (S.comprati.assicura || 0); }
+function costo(id){
+  const v = C.cassa.find(x => x.id === id);
+  return Math.round(v.costo * Math.pow(v.passo, S.comprati[id] || 0));
+}
+function esaurita(id){
+  const v = C.cassa.find(x => x.id === id);
+  return (S.comprati[id] || 0) >= v.volte;
+}
+
+/* ------------------------------------------------------------------- eventi */
+function scrivi(testo, esito){
+  S.registro.unshift({ testo, esito: esito || 0, giorno:S.giorno });
+  if (S.registro.length > 120) S.registro.pop();
+}
+
+function battito(){
+  const m = moltiplicatori();
+  const r = caso();
+
+  /* una fascia per volta: le soglie non si sommano fra turni diversi */
+  if (S.turno === "giorno"){
+    if (r < C.consulente) return duello(m);
+    if (r < C.consulente + C.incidente.giorno) return danno();
+  } else {
+    if (r < C.revisore) return revisione();
+    if (r < C.revisore + C.ritrovamento) return ritrovamento(m);
+    if (r < C.revisore + C.ritrovamento + C.incidente.notte) return danno();
+  }
+
+  const scelta = FATTI[S.turno][Math.floor(caso() * FATTI[S.turno].length)];
+  const g = Math.round(C.gettoni.base * m.gettoni * (scelta[1] ? 1.6 : 0.8));
+  const x = Math.round(C.xp.base * m.xp);
+  S.gettoni += g; S.xp += x;
+  scrivi(`${scelta[0]}. +${g} tokens, +${x} xp`, 0);
+  torna();
+}
+
+function duello(m){
+  S.incontri++;
+  if (caso() < 0.5 + 0.12 * titoloDi(S.xp).livello){
+    const g = Math.round(90 * m.gettoni);
+    S.gettoni += g; S.xp += Math.round(10 * m.xp);
+    scrivi(`the Consultant tries to take credit. You had receipts. +${g} tokens`, 0);
+  } else {
+    S.reputazione -= 1; S.persoOggi = true;
+    scrivi("the Consultant wins the room. Something of yours goes missing", 1);
+  }
+  mostraRivale(1200);
+  torna();
+}
+
+function revisione(){
+  if (S.gettoni > C.tettoTassa){
+    const perso = Math.round(S.gettoni * C.tassaRevisore);
+    S.gettoni -= perso;
+    scrivi(`someone audits the building at 02:40. −${perso} tokens in "adjustments"`, 1);
+  } else {
+    scrivi("you hear the auditor's shoes, and keep your head down. nothing found", 0);
+  }
+  torna();
+}
+
+function ritrovamento(m){
+  S.ritrovamenti++;
+  S.stella = true;
+  const g = Math.round(45 * m.gettoni);
+  S.gettoni += g;
+  scrivi(`behind the vending machine: loose change from 2014. +${g} tokens`, 0);
+  torna();
+}
+
+function danno(){
+  S.incidenti++;
+  S.reputazione -= 1; S.persoOggi = true;
+  scrivi("something breaks, and your name is on the last ticket", 1);
+  torna();
+}
+
+function torna(){
+  S.tick++;
+  S.stella = false;
+  if (S.reputazione <= 0) return fine("fired");
+  const prima = titoloDi(S.xp);
+  if (S.tick >= C.tickGiorno) fineGiornata(prima);
+  disegna();
+}
+
+let attesa = null;
+function programma(){ attesa = setTimeout(gira, C.tickMs); }
+function gira(){ if (S.finita) return; battito(); if (!S.finita) programma(); }
+
+function mostraRivale(ms){
+  S.rivaleFino = Date.now() + ms;
+  dipinto();
+  setTimeout(dipinto, ms + 20);
+}
+
+/* ------------------------------------------------------------ cambio turno */
+function cambiaTurno(){
+  if (S.finita) return;
+  if (S.cambiUsati >= S.cambi){
+    scrivi("you have already changed shift today. the building notices", 1);
+    disegna();
+    return;
+  }
+  S.cambiUsati++; S.cambiTotali++;
+  S.turno = S.turno === "giorno" ? "notte" : "giorno";
+  // il tempo che restava si accorcia: cambiare direzione costa quello che avevi
+  const restanti = C.tickGiorno - S.tick;
+  S.tick += Math.floor(restanti / 2);
+  scrivi(`you swap to the ${NOMI[S.turno]}. the rest of the day is shorter`, 0);
+  suona(S.turno === "notte" ? 180 : 320, 0.08);
+  document.body.classList.toggle("night", S.turno === "notte");
+  disegna();
+  if (S.tick >= C.tickGiorno) fineGiornata(titoloDi(S.xp));
+}
+
+/* ------------------------------------------------------------- fine giornata */
+function fineGiornata(titoloPrima){
+  S.finita = true;
+  clearTimeout(attesa);
+  const dopo = titoloDi(S.xp);
+  const promosso = dopo.livello > titoloPrima.livello;
+  const curato = chiudiGiornata();
+  if (promosso) suona(660, 0.12);
+  apri(`
+    <h3>End of day ${S.giorno}</h3>
+    <table>
+      <tr><td>tokens in hand</td><td><b>${S.gettoni}</b></td></tr>
+      <tr><td>experience</td><td>${S.xp}</td></tr>
+      <tr><td>heart</td><td>${"♥".repeat(Math.max(0, S.reputazione))}</td></tr>
+    </table>
+    ${promosso ? `<p><b>Promoted: ${dopo.nome}.</b> Somebody has to update the org chart.</p>` : ""}
+    ${curato ? "<p>Nothing broke today. You get a bit of yourself back.</p>" : ""}
+    <p>${S.giorno >= C.giorni ? "Last day of the month." : "The building empties out. Tomorrow you can pick a different shift."}</p>
+    <div class="riga"><button id="domani">${S.giorno >= C.giorni ? "Close the month" : "Go home"}</button></div>
+  `);
+  document.getElementById("domani").onclick = () => {
+    chiudi();
+    if (S.giorno >= C.giorni) return fine("month");
+    nuovoGiorno();
+    scrivi(`— day ${S.giorno}. you start on the ${NOMI[S.turno]} —`, 0);
+    disegna();
+    programma();
+  };
+}
+
+function chiudiGiornata(){
+  const curato = !S.persoOggi && S.reputazione < tettoCuori();
+  if (curato) S.reputazione = Math.min(tettoCuori(), S.reputazione + C.recupero);
+  return curato;
+}
+
+function nuovoGiorno(){
+  S.giorno++; S.tick = 0; S.cambiUsati = 0;
+  S.cambi = 1 + (S.comprati.caffe || 0);
+  S.persoOggi = false;
+  S.finita = false;
+}
+
+function fine(motivo){
+  S.finita = true;
+  clearTimeout(attesa);
+  const t = titoloDi(S.xp);
+  const punteggio = S.gettoni + t.livello * 300;
+  suona(motivo === "month" ? 520 : 120, 0.2);
+  apri(`
+    <h3>${motivo === "month" ? "The month is over" : "Your badge stops working"}</h3>
+    <div class="fine">${t.nome}</div>
+    <table>
+      <tr><td>day reached</td><td>${S.giorno}</td></tr>
+      <tr><td>tokens</td><td>${S.gettoni}</td></tr>
+      <tr><td>shift changes</td><td>${S.cambiTotali}</td></tr>
+      <tr><td>encounters with the Consultant</td><td>${S.incontri}</td></tr>
+      <tr><td>night finds</td><td>${S.ritrovamenti}</td></tr>
+      <tr><td>things that broke</td><td>${S.incidenti}</td></tr>
+      <tr><td><b>score</b></td><td><b>${punteggio}</b></td></tr>
+    </table>
+    <p>${motivo === "month" ? "Whatever you are now, the corridor stays the same." : "The corridor continues without you. It always does."}</p>
+    <div class="riga"><button id="ancora">Start over</button></div>
+  `);
+  document.getElementById("ancora").onclick = () => { chiudi(); avvia(); };
+}
+
+/* -------------------------------------------------------------------- suono */
+let audio = null;
+function suona(freq, durata){
+  try{
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audio.createOscillator(), g = audio.createGain();
+    o.type = "square"; o.frequency.value = freq;
+    g.gain.value = 0.03;
+    o.connect(g); g.connect(audio.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + durata);
+    o.stop(audio.currentTime + durata);
+  }catch(e){ /* niente suono, nessun problema */ }
+}
+
+/* ------------------------------------------------------------------- cassa */
+function disegnaCassa(){
+  document.getElementById("voci").innerHTML = C.cassa.map(v => {
+    const fatta = esaurita(v.id), c = costo(v.id), n = S.comprati[v.id] || 0;
+    const puoi = S.gettoni >= c && !fatta;
+    return `<div class="voce ${fatta ? "fatta" : ""}">
+      <div><b>${v.nome}${n ? ` <small>×${n}</small>` : ""}</b><small>${v.nota}</small></div>
+      ${fatta ? "<small>maxed out</small>"
+              : `<button data-compra="${v.id}" ${puoi ? "" : "disabled"}>${c}</button>`}
+    </div>`;
+  }).join("");
+  document.querySelectorAll("[data-compra]").forEach(b => {
+    b.onclick = () => {
+      const id = b.getAttribute("data-compra");
+      if (S.gettoni < costo(id) || esaurita(id)) return;
+      S.gettoni -= costo(id);
+      S.comprati[id] = (S.comprati[id] || 0) + 1;
+      if (id === "caffe") S.cambi = 1 + S.comprati.caffe;
+      if (id === "assicura") S.reputazione = tettoCuori();
+      scrivi(`you bought the ${C.cassa.find(x => x.id === id).nome}. It is yours now`, 0);
+      suona(440, 0.06);
+      disegna();
+    };
+  });
+}
+
+/* ------------------------------------------------------------------ disegno */
+function disegna(){
+  const t = titoloDi(S.xp);
+  const succ = C.titoli[t.livello + 1];
+  document.getElementById("giorno").textContent = S.giorno;
+  document.getElementById("titolo").textContent = t.nome;
+  document.getElementById("gettoni").textContent = S.gettoni;
+  document.getElementById("reputazione").textContent = "♥ " + Math.max(0, S.reputazione);
+  const xp = succ ? (S.xp - t.soglia) / (succ[0] - t.soglia) : 1;
+  document.getElementById("xp").style.width = Math.min(100, xp * 100) + "%";
+  document.getElementById("turno").textContent = NOMI[S.turno];
+  const restanti = S.cambi - S.cambiUsati;
+  document.getElementById("conto").innerHTML =
+    `${restanti} change${restanti === 1 ? "" : "s"} left today`;
+  dipinto();
+  document.getElementById("registro").innerHTML = S.registro.slice(0, 40)
+    .map((r, i) => `<li class="e${r.esito}${i === 0 ? " nuovo" : ""}"><span class="m">${r.esito === 1 ? "!" : "+"}</span><span>${r.testo}</span></li>`)
+    .join("");
+  disegnaCassa();
+}
+
+/* ------------------------------------------------------------------ modale */
+function apri(html){ document.getElementById("foglio").innerHTML = html; document.getElementById("modale").showModal(); }
+function chiudi(){ document.getElementById("modale").close(); }
+
+/* ------------------------------------------------------------------- avvio */
+function avvia(){
+  S = nuovo(Date.now() % 100000);
+  document.body.classList.toggle("night", false);
+  scrivi("day 1. your desk is the third one along, past the plant that is not real", 0);
+  disegna();
+  programma();
+}
+
+document.getElementById("cambia").onclick = cambiaTurno;
+window.addEventListener("keydown", e => { if (e.key === "Shift") { e.preventDefault(); cambiaTurno(); } });
+avvia();
+
+/* --------- banco di prova: misura partite intere senza grafica --------- */
+function prova(policy, n, origine){
+  const salva = { apri, scrivi, suona, disegna, fineGiornata, fine };
+  apri = () => {}; scrivi = () => {}; suona = () => {};
+  fineGiornata = () => {
+    chiudiGiornata();
+    S.finita = true;
+    if (S.giorno >= C.giorni) { S.esito = "mese"; return; }
+    nuovoGiorno();
+  };
+  fine = (motivo) => { S.finita = true; S.esito = motivo; };
+  const esiti = [];
+  for (let i = 0; i < n; i++){
+    clearTimeout(attesa);
+    avvia();
+    S._s = origine + i * 7919;
+    let guardia = 0;
+    while (!S.finita && S.giorno <= C.giorni && guardia++ < 40000){
+      if (policy === "notte" && S.turno === "giorno") cambiaTurno();
+      else if (policy === "meta" && S.turno === "giorno" && S.tick >= Math.floor(C.tickGiorno / 2)) cambiaTurno();
+      else if (policy === "giorno" && S.turno === "notte") cambiaTurno();
+      battito();
+      if (S.finita) break;
+      for (const v of C.cassa){
+        if (!esaurita(v.id) && S.gettoni > costo(v.id) * 2){
+          S.gettoni -= costo(v.id); S.comprati[v.id] = (S.comprati[v.id] || 0) + 1;
+          if (v.id === "caffe") S.cambi = 1 + S.comprati.caffe;
+        }
+      }
+    }
+    const t = titoloDi(S.xp);
+    esiti.push({giorno:S.giorno, titolo:t.nome, livello:t.livello, gettoni:S.gettoni, xp:S.xp,
+      cuore:Math.max(0, S.reputazione), cambi:S.cambiTotali, incontri:S.incontri,
+      ritrovamenti:S.ritrovamenti, esito:S.esito || "in corso",
+      punteggio:S.gettoni + t.livello * 300, comprati:JSON.stringify(S.comprati)});
+  }
+  apri = salva.apri; scrivi = salva.scrivi; suona = salva.suona; disegna = salva.disegna;
+  fineGiornata = salva.fineGiornata; fine = salva.fine;
+  avvia();
+  return esiti;
+}
+window.Corridor3 = { prova, taratura: C, stato: () => S };
+
+</script>
+</body>
+</html>
