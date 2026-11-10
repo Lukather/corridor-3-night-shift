@@ -75,4 +75,4 @@ follows the hero. The same drawing runs on an e-ink reader at home.
 
 ## Source
 
-Link to the public GitHub repository:
+https://github.com/Lukather/corridor-3-night-shift
