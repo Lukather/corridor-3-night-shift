@@ -356,9 +356,10 @@ function moltiplicatori(){
   };
 }
 function titoloDi(xp){
-  let nome = T[0].nome, livello = 0;
-  for (let i = 0; i < C.titoli.length; i++) if (xp >= C.titoli[i][0]) { nome = C.titoli[i][1]; livello = i; }
-  return { nome, livello };
+  let nome = T[0].nome, livello = 0, soglia = 0;
+  for (let i = 0; i < C.titoli.length; i++)
+    if (xp >= C.titoli[i][0]) { nome = C.titoli[i][1]; livello = i; soglia = C.titoli[i][0]; }
+  return { nome, livello, soglia };   // la soglia serve alla barra: senza, il calcolo fa NaN
 }
 function tettoCuori(){ return C.reputazione + 2 * (S.comprati.assicura || 0); }
 function costo(id){
