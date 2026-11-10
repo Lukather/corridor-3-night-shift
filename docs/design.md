@@ -47,19 +47,19 @@ and a thermos (+30% night tokens, three times).
 
 `index.html` carries a small harness: `window.Corridor3.prova(policy, runs, seed)` plays whole
 30-day games headlessly, buying from the vending machine when it can afford to without emptying its
-pockets, and returns the results of every run. Three play styles, eight runs each:
+pockets, and returns the results of every run. Three play styles, forty runs each, seed 2026:
 
 | play style | reaches day 30 | rank at the end | tokens | score |
 |---|---|---|---|---|
-| day shifts only | 2 of 8 | Clerk (median) | 564 | 1737 |
-| night shifts only | 6 of 8 | Head of Department (median) | 646 | 2471 |
-| mixed, swapping at midday | 6 of 8 | Head of Department (median) | 569 | 2461 |
+| day shifts only | 16 of 40 | Manager (median) | 947 | 2201 |
+| night shifts only | 21 of 40 | Head of Department (median) | 685 | 2674 |
+| mixed, swapping at midday | 22 of 40 | Head of Department (median) | 614 | 2591 |
 
-Reading: a player who never touches the mechanic earns the most money per day and gets fired most
-often - the game teaches its own verb. The night shift is the safe, slow path to rank; mixing is
-where the money for the vending machine comes from, and the thermos then pays it back at night.
-The gap between the two surviving styles is inside the noise of eight runs, so this is the honest
-statement: both work, and neither is the shortcut.
+Reading: a player who never touches the mechanic holds the most tokens and gets fired most often -
+24 runs out of 40, against 19 and 18 for the other two. The game teaches its own verb. The night
+shift is the safe, slow path to rank; mixing is where the money for the vending machine comes from,
+and the thermos then pays it back at night. The gap between the two surviving styles is inside the
+noise of forty runs, so this is the honest statement: both work, and neither is the shortcut.
 
 ## Three times the harness lied
 

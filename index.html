@@ -48,6 +48,19 @@
   .conto{font-size:12.5px;color:var(--inchiostro);align-self:center;text-align:right;min-width:104px;line-height:1.35}
   .conto small{color:var(--tenue);font-size:11px}
 
+  /* i termini dei due turni: la differenza non si deduce giocando, perche' gli
+     eventi sono rari e il registro non ha una scala di riferimento. Riga del
+     turno in corso evidenziata come i pulsanti, cosi' si vede dove sei. */
+  .turni{margin-top:10px;border-top:1.5px solid var(--riga);padding-top:8px;font-size:11.5px;line-height:1.5}
+  .turni .regola{margin:0 0 6px;color:var(--tenue)}
+  .turno-riga{border:1.5px solid var(--riga);padding:5px 8px;margin-bottom:5px}
+  .turno-riga.qui{border:2px solid var(--inchiostro);background:var(--inchiostro);color:var(--carta)}
+  .turno-riga b{letter-spacing:.12em;text-transform:uppercase}
+  .turno-riga span{display:block;color:var(--tenue)}
+  .turno-riga .cifre{display:inline;margin-left:8px;color:inherit}
+  .turno-riga.qui span{color:inherit}
+  .turno-riga .male{color:var(--male)}
+
   #registro{list-style:none;margin:11px 0 0;padding:0;font-size:13px;max-height:132px;overflow:auto}
   #registro li{border-bottom:1px dotted var(--riga);padding:4px 0;display:flex;gap:8px}
   #registro li span.m{width:1.1em;text-align:center;color:var(--accento)}
@@ -58,8 +71,21 @@
   @keyframes entra{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
 
   .cassa{margin-top:12px;border-top:2px solid var(--inchiostro);padding-top:10px}
-  .cassa summary{font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;padding:2px 0}
+  /* la tendina deve sembrare un comando: bordo duro come gli altri pulsanti, un segno
+     che dice che si apre, e inversione al passaggio come tutto il resto del gioco */
+  .cassa summary{display:block;list-style:none;border:2px solid var(--inchiostro);
+    padding:7px 9px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+  .cassa summary::-webkit-details-marker{display:none}
+  .cassa summary:hover{background:var(--inchiostro);color:var(--carta)}
+  .cassa summary:hover span{color:inherit}
   .cassa[open] summary{margin-bottom:9px}
+  /* il triangolino: disegnato con i bordi, non preso da un carattere, cosi' non
+     dipende dai font. Punta a destra da chiusa e gira in giu' quando si apre. */
+  .cassa .segno{display:inline-block;vertical-align:-1px;width:0;height:0;margin-right:9px;
+    border-left:7px solid currentColor;border-top:5px solid transparent;
+    border-bottom:5px solid transparent;transition:transform .15s}
+  .cassa[open] .segno{transform:rotate(90deg)}
+  .cassa summary span{letter-spacing:0;text-transform:none;color:var(--tenue)}
   .voce{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center;
     border:1.5px solid var(--riga);padding:7px 9px;margin-bottom:6px}
   .voce.fatta{opacity:.55}
@@ -109,10 +135,16 @@
     <div class="conto" id="conto"></div>
   </div>
 
+  <div class="turni">
+    <p class="regola">the day is twelve bells long. the day pays, the night teaches, and changing your mind costs half of the day you have left.</p>
+    <div class="turno-riga" id="riga-giorno"></div>
+    <div class="turno-riga" id="riga-notte"></div>
+  </div>
+
   <ol id="registro"></ol>
 
   <details class="cassa">
-    <summary>The vending machine</summary>
+    <summary><i class="segno"></i>The vending machine <span id="cassa_stato"></span></summary>
     <div id="voci"></div>
   </details>
 </main>
@@ -472,7 +504,12 @@ function cambiaTurno(){
   // il tempo che restava si accorcia: cambiare direzione costa quello che avevi
   const restanti = C.tickGiorno - S.tick;
   S.tick += Math.floor(restanti / 2);
-  scrivi(`you swap to the ${NOMI[S.turno]}. the rest of the day is shorter`, 0);
+  // il momento della decisione: dire cosa si guadagna e cosa si rischia con il
+  // turno nuovo, non solo che il giorno si accorcia
+  const verso = S.turno === "notte"
+    ? "half the pay, twice the learning, and the auditor walks at 02:40"
+    : "twice the pay, half the learning, and the Consultant is in the building";
+  scrivi(`you swap to the ${NOMI[S.turno]}: ${verso}. the rest of the day is shorter`, 0);
   suona(S.turno === "notte" ? 180 : 320, 0.08);
   document.body.classList.toggle("night", S.turno === "notte");
   disegna();
@@ -580,6 +617,11 @@ function disegnaCassa(){
               : `<button data-compra="${v.id}" ${puoi ? "" : "disabled"}>${c}</button>`}
     </div>`;
   }).join("");
+  const quanti = C.cassa.filter(v => !esaurita(v.id) && S.gettoni >= costo(v.id)).length;
+  const stato = document.getElementById("cassa_stato");
+  if (stato) stato.textContent = quanti
+    ? `— ${quanti} you can afford`
+    : "— nothing affordable yet";
   document.querySelectorAll("[data-compra]").forEach(b => {
     b.onclick = () => {
       const id = b.getAttribute("data-compra");
@@ -596,6 +638,29 @@ function disegnaCassa(){
 }
 
 /* ------------------------------------------------------------------ disegno */
+/* I numeri dei due turni si leggono dalle costanti: se un domani cambio la
+   taratura, il pannello non dice bugie. Le probabilita' rare si dicono come
+   "un battito su N", che e' l'unico modo di farle capire a chi non le ha viste. */
+function unoSu(p){ return Math.round(1 / p); }
+function disegnaTurni(){
+  const g = C.gettoni, x = C.xp;
+  const gb = Math.round(g.base * g.giorno * 0.8), ga = Math.round(g.base * g.giorno * 1.6);
+  const nb = Math.round(g.base * g.notte * 0.8), na = Math.round(g.base * g.notte * 1.6);
+  /* le voci si etichettano: senza l'etichetta "risk" la riga degli spiccioli
+     dietro la macchinetta si legge come un secondo pericolo invece che un bonus */
+  document.getElementById("riga-giorno").innerHTML =
+    `<b>day shift</b><span class="cifre">${gb} to ${ga} tokens a bell · ` +
+    `${Math.round(x.base * x.giorno)} xp a bell</span>` +
+    `<span class="male">risk · the Consultant turns up 1 bell in ${unoSu(C.consulente)}, ` +
+    `and half of those cost you a heart</span>`;
+  document.getElementById("riga-notte").innerHTML =
+    `<b>night shift</b><span class="cifre">${nb} to ${na} tokens a bell · ` +
+    `${Math.round(x.base * x.notte)} xp a bell</span>` +
+    `<span class="male">risk · the auditor walks at 02:40, 1 bell in ${unoSu(C.revisore)}: ` +
+    `${Math.round(C.tassaRevisore * 100)}% of anything you hold over ${C.tettoTassa}</span>` +
+    `<span>bonus · loose change behind the vending machine, 1 bell in ${unoSu(C.ritrovamento)}</span>`;
+}
+
 function disegna(){
   const t = titoloDi(S.xp);
   const succ = C.titoli[t.livello + 1];
@@ -606,6 +671,8 @@ function disegna(){
   const xp = succ ? (S.xp - t.soglia) / (succ[0] - t.soglia) : 1;
   document.getElementById("xp").style.width = Math.min(100, xp * 100) + "%";
   document.getElementById("turno").textContent = NOMI[S.turno];
+  document.getElementById("riga-giorno").classList.toggle("qui", S.turno === "giorno");
+  document.getElementById("riga-notte").classList.toggle("qui", S.turno === "notte");
   const restanti = S.cambi - S.cambiUsati;
   document.getElementById("conto").innerHTML =
     `${restanti} change${restanti === 1 ? "" : "s"} left today`;
@@ -631,6 +698,7 @@ function avvia(){
 
 document.getElementById("cambia").onclick = cambiaTurno;
 window.addEventListener("keydown", e => { if (e.key === "Shift") { e.preventDefault(); cambiaTurno(); } });
+disegnaTurni();
 avvia();
 
 /* --------- banco di prova: misura partite intere senza grafica --------- */
