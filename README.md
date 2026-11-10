@@ -58,5 +58,4 @@ the day/night economy, the balance, the English text — was built during the ja
 
 ## Licence
 
-Not yet chosen — see the note in the itch page. The code and the artwork can be licensed
-separately.
+MIT, code and artwork together. See `LICENSE`.

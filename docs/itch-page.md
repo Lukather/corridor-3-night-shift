@@ -1,0 +1,64 @@
+# itch.io page copy
+
+Paste-ready text for the submission. Rewrite it in your own voice where you want to.
+
+## Title
+
+Corridor 3: Night Shift
+
+## Short description (the one-liner itch shows under the title)
+
+A small game about shifts: the ones you work, and the ones you choose.
+
+## Description
+
+You are the newest hire in an office building. You do not steer the work - it happens on its own,
+every second, whether you watch or not. The only real decision is **which shift you are on**, and it
+changes everything:
+
+- the **day shift** pays about twice as much, and puts the Consultant in the building with you, a
+  rival who takes credit for what you did
+- the **night shift** pays little and teaches fast. The auditor walks the corridors at 02:40, and
+  loose change turns up behind the vending machine
+
+Swapping mid-day costs half of what is left of the day, so changing direction is never free. Five
+hearts: a mishap or an argument you lose costs one, a day that ends without damage gives one back.
+Thirty days, then the month closes on your rank and your score.
+
+**One button.** Press Shift, or click the button - that is the whole game.
+
+A run is about ten minutes. No install, no account, nothing to download: it runs in the browser.
+
+## Controls
+
+- **Shift key**, or the on-screen button: change shift
+- mouse or finger for everything else
+
+## Made for Game Off 2026
+
+The theme is **SHIFT**, and it is read twice on purpose. A shift is a period of work; a shift is
+also a change of direction. In this game the two are the same button, and the whole economy hangs
+off the choice between them.
+
+## AI disclosure
+
+The jam asks participants to declare their use of AI, so, plainly: the engine, the event text, the
+balance pass and the English were written with an **AI coding agent (Hermes)**, working from my
+decisions, my layouts and the rooms I designed. The balance was measured rather than guessed - the
+game ships with a harness that plays whole 30-day runs headlessly, and the numbers in
+`docs/design.md` come out of it.
+
+## Credits
+
+- design, pixel rooms and the game itself: me
+- code written with Hermes (AI)
+
+## Technical note (for the curious)
+
+One HTML file, no dependencies, no build step, no network. The rooms are drawn from maps of 30
+cells by 8, each character a sprite of 8x8 pixels in four tones, with an 18-cell window that
+follows the hero. The same drawing runs on an e-ink reader at home.
+
+## Source
+
+Link to the public GitHub repository:
