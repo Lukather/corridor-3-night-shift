@@ -16,6 +16,10 @@ Open `index.html` in any browser. No install, no build step, no network.
 - Everything else happens by itself. You intervene at the end of the day, at the vending machine.
 - A run is 30 in-game days, about ten minutes.
 
+It runs in any browser, desktop or mobile, with no install and no account. The one floor is 2022:
+the end-of-day screen uses the native `<dialog>` element, which Firefox and Safari only learned in
+2022. Older tablets will play the game but not open that screen.
+
 ## The idea
 
 The theme is read twice, on purpose. A *shift* is a period of work and it is also a change of

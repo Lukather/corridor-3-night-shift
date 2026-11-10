@@ -67,6 +67,11 @@ game ships with a harness that plays whole 30-day runs headlessly, and the numbe
 - design, pixel rooms and the game itself: me
 - code written with Hermes (AI)
 
+## Compatibility
+
+Any browser, desktop or mobile, from 2022 onwards, with nothing to install. On a phone you play with
+the button, since there is no Shift key to press.
+
 ## Technical note (for the curious)
 
 One HTML file, no dependencies, no build step, no network. The rooms are drawn from maps of 30
