@@ -27,7 +27,8 @@ Thirty days, then the month closes on your rank and your score.
 
 **One button.** Press Shift, or click the button - that is the whole game.
 
-A run is about ten minutes. No install, no account, nothing to download: it runs in the browser.
+A run is about ten minutes. The whole game is **one HTML file**: download the zip, unzip it, open
+`index.html` in any browser. No install, no account, no network.
 
 ## Controls
 
@@ -69,8 +70,9 @@ game ships with a harness that plays whole 30-day runs headlessly, and the numbe
 
 ## Compatibility
 
-Any browser, desktop or mobile, from 2022 onwards, with nothing to install. On a phone you play with
-the button, since there is no Shift key to press.
+Any browser, desktop or mobile, from 2022 onwards, with nothing to install: it is one file, and it
+works offline, straight from the unzipped folder. On a phone you play with the button, since there is
+no Shift key to press.
 
 ## Technical note (for the curious)
 
