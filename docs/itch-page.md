@@ -40,6 +40,20 @@ The theme is **SHIFT**, and it is read twice on purpose. A shift is a period of 
 also a change of direction. In this game the two are the same button, and the whole economy hangs
 off the choice between them.
 
+## Where it comes from
+
+This is the browser release of a game whose real home is not a browser.
+
+The original runs on a small server at home and lives on an e-ink reader: the screen *is* the game -
+a room, a character moving through it, the log of the day - and because e-ink cannot be tapped
+usefully, the decisions happen on a phone. One button, glanceable, always on, part of a wall: that is
+the shape the whole thing was built around.
+
+What you are playing here is deliberately reduced to **one mechanic and a ten-minute run** - which is
+the jam's own advice - and brought to the browser so that anyone can play it. The version at home has
+what this one leaves out: contracts, weekly perks, an inventory, and a basement you can only open
+with a key that costs more than a month of work.
+
 ## AI disclosure
 
 The jam asks participants to declare their use of AI, so, plainly: the engine, the event text, the
