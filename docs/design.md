@@ -8,10 +8,17 @@ button. Everything else is arithmetic around it.
 The day shift pays about twice as much as the night shift and puts the Consultant - a rival who
 takes credit - in the building with you. The night pays little, teaches fast, and is quieter: the
 auditor walks the corridors at 02:40, and loose change turns up behind the vending machine.
-Swapping mid-day costs half of what is left of the day, so a change of direction is never free.
+Swapping mid-day costs half of what is left of the day, so a change of direction is never free - but
+the shift you work tomorrow is a free choice made the night before.
 
-Five hearts. A mishap, or an argument you lose, costs one; a day that ends without damage gives one
-back. Thirty days, then the month closes and you get a score.
+Three things stop the clock and ask: the Consultant taking your credit, the audit at 02:40, and a
+mishap with your name on the ticket. Each one offers two fixed ways out, one paid in hearts and one
+paid in tokens, so a heart can be bought and tokens can be earned back. That is the arithmetic the
+whole game hangs on, and it is why no single strategy wins: what a heart is worth depends on the
+shift you are working and on how much of the month is left.
+
+Five hearts, and a day that ends without damage gives one back. Thirty days, then the month closes
+and you get a score.
 
 ## The building
 
@@ -33,10 +40,12 @@ the four tones to their night values, which keeps the drawing crisp instead of w
 | experience per event | x0.75 | x1.6 |
 | mishap per tick | 3.5% | 4% |
 | the Consultant | 4.5% per tick | - |
-| the auditor | - | 6% per tick, takes 15% of anything over 300 tokens |
-| finds | - | 8% per tick |
+| the auditor | - | 6% per tick |
+| finds | - | 8% per tick, worth 45 x the night multiplier |
 
-Twelve ticks to a day, 900 ms each. A run is about ten minutes.
+Twelve ticks to a day, two seconds each: a run is about twelve minutes of ticking, more once the
+cards stop the clock. The audit bites above 150 tokens, taking 15% if you sit through it or about
+7% if you buy the clerk a coffee.
 
 Titles at 0, 75, 200, 400, 650, 950, 1350 and 1800 experience; the last one is Head of Department.
 The vending machine sells a chair (+15% tokens, five times), night classes (+20% experience, three
@@ -45,22 +54,38 @@ and a thermos (+30% night tokens, three times).
 
 ## How the balance was measured
 
-`index.html` carries a small harness: `window.Corridor3.prova(policy, runs, seed)` plays whole
-30-day games headlessly, buying from the vending machine when it can afford to without emptying its
-pockets, and returns the results of every run. Three play styles, forty runs each, seed 2026:
+`index.html` carries a small harness: `window.Corridor3.prova(policy, runs, seed, strategy)` plays
+whole 30-day games headlessly, buying from the vending machine when it can afford to without emptying
+its pockets, and returns the results of every run.
 
-| play style | reaches day 30 | rank at the end | tokens | score |
+The cards - the Consultant, the audit, a mishap - are the decisions the game is made of, so the
+harness has to model how they are answered. Four strategies. Each cell below is a count of **runs**,
+never of days: forty games per cell, thirty days each, seed 2026. So "39 of 40" means thirty-nine
+players out of forty reached the end of the month.
+
+| strategy | what it does | day shifts only | nights only | mixed |
 |---|---|---|---|---|
-| day shifts only | 8 of 40 | Team Lead (median) | 780 | 1563 |
-| night shifts only | 21 of 40 | Head of Department (median) | 685 | 2674 |
-| mixed, swapping at midday | 21 of 40 | Head of Department (median) | 589 | 2582 |
+| `prima` | never pays: takes the heart | 0 of 40 runs | 21 of 40 runs | 21 of 40 runs |
+| `avara` | pays only when the last heart is at stake | 20 of 40 runs | 37 of 40 runs | 34 of 40 runs |
+| `oculata` | pays when hearts are low, or the price is small next to the purse | 31 of 40 runs | 39 of 40 runs | 35 of 40 runs |
+| `paga` | always pays when it can | 30 of 40 runs | 38 of 40 runs | 35 of 40 runs |
 
-Reading: the day shift holds the most tokens and survives the least - it is the expensive shift, not
-the safe one. A player who stays on it is fired in 32 runs out of 40, against 19 for the other two,
-which are inside the noise of forty runs of each other. The night is the safe, slow path to rank;
-mixing is where the money for the vending machine comes from, and the thermos then pays it back at
-night. This is the honest statement: nights alone work, days alone are a bet, and the good run
-changes shift.
+Median score over the same runs, in the same order:
+
+| strategy | day shifts only | nights only | mixed |
+|---|---|---|---|
+| `prima` | 1144 | 2696 | 2672 |
+| `avara` | 1892 | 2780 | 2737 |
+| `oculata` | 2001 | 2635 | 2613 |
+| `paga` | 1875 | 2401 | 2311 |
+
+Reading: no strategy wins on its own, which is the point of the cards - the best any of them manages
+is thirty-nine runs out of forty. Refusing to pay dies on the day shift (not one run out of forty
+finishes the month) and is merely poor at night. Paying every time survives best and finishes
+poorest: at night it buys safety it did not need and closes on 367 tokens against the 680 of a
+player who paid only to save the last heart. The two winning combinations are different ones,
+`oculata` for the day and `avara` for the night, so the game is not asking which shift to work. It
+is asking what a heart is worth today, and the answer changes with the shift.
 
 ## When the numbers lied
 
@@ -82,7 +107,11 @@ Worth writing down, because every one of them was found by measuring rather than
    became the day's best income. Measured over 20,000 bells: 873 wins to 2 losses, and a player who
    stayed on days died in his first week, before the ladder could pay the odds back. The fix keeps
    the shape and moves the threshold to 11 - 50% at Intern, 85% at Head of Department - and the
-   day-only run returns to 8 of 40.
+   day-only run returns to 8 runs of 40.
+   The dice have since been taken out altogether: the Consultant, the audit and a mishap are now
+   cards with fixed outcomes, and what a heart is worth is a decision rather than a probability. The
+   entry stays because the lesson does - a ported probability is measured on the ladder it lands on,
+   not on the one it came from.
 
 ## Out of scope, on purpose
 

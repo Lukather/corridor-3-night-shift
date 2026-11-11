@@ -1396,14 +1396,34 @@ disegnaTurni();
 avvia();
 
 /* --------- banco di prova: misura partite intere senza grafica --------- */
-function prova(policy, n, origine){
+/* Le quattro strategie davanti a una carta. Non sono la stessa cosa: pagare sempre tiene in vita
+   ma tiene poveri, e il punteggio e' gettoni piu' 300 per grado. Il banco misura la differenza
+   invece di deciderla a mano.
+     "prima"    non paga mai: incassa il cuore (e' quello che faceva il banco prima)
+     "paga"     paga ogni volta che puo'
+     "avara"    paga solo quando l'ultimo cuore e' in gioco
+     "oculata"  paga se i cuori sono pochi (2 o meno) o se il prezzo e' meta' di quel che ha in mano */
+function sceglieOpzione(spec, strategia){
+  const opz = spec.opzioni, K = C.scelte[spec.tipo];
+  if (!opz[1] || (opz[1].attiva && !opz[1].attiva()) || strategia === "prima") return 0;
+  if (strategia === "paga") return 1;
+  const costo = spec.tipo === "duello" ? -K.accordo.gettoni
+              : spec.tipo === "danno"   ? -K.copri.gettoni
+              : -Math.round(S.gettoni * K.mazzetta.perc);       // revisione: l'alternativa e' la mazzetta
+  if (strategia === "avara") return S.reputazione <= 1 ? 1 : 0;
+  if (S.reputazione <= 2) return 1;
+  return (costo > 0 && S.gettoni >= costo * 2) ? 1 : 0;
+}
+
+function prova(policy, n, origine, strategia){
+  strategia = strategia || "oculata";
   const salva = { apri, scrivi, suona, disegna, dipinto, fineGiornata, fine, lampo, mostraBanner, richiedi };
   // anche il disegno va staccato: da quando la stanza e' fatta di rettangoli,
   // simulare 30 giorni dipingendo il DOM a ogni battito e' lentissimo
   apri = () => {}; scrivi = () => {}; suona = () => {}; disegna = () => {}; dipinto = () => {};
   lampo = () => {}; mostraBanner = () => {};
-  /* il banco di prova sceglie sempre l'opzione predefinita, cioe' le regole di prima */
-  richiedi = spec => { spec.opzioni[spec.predefinita || 0].azione(); torna(); };
+  /* le carte si risolvono con la strategia scelta: vedi sceglieOpzione */
+  richiedi = spec => { spec.opzioni[sceglieOpzione(spec, strategia)].azione(); torna(); };
   fineGiornata = () => {
     chiudiGiornata();
     S.finita = true;

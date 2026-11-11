@@ -19,32 +19,47 @@ changes everything.
 A day is twelve bells long. What a bell pays you, and what it costs you, is the whole game:
 
 - **day shift**: 8 to 16 tokens a bell, and 3 experience. The money is here. So is the Consultant, a
-  rival who takes credit for what you did: he turns up about one bell in 22, and you win that
-  argument about half the time at the bottom of the ladder, 85% of the time at the top.
+  rival who takes credit for what you did: he turns up about one bell in 22, and he is a decision, not
+  a die.
 - **night shift**: half the pay, 4 to 8 tokens a bell, but twice the learning, 6 experience. It is
   quieter, and it taxes what you hoard: the auditor walks the corridors at 02:40, about one bell in
-  17, and takes 15% of whatever you are holding over 300 tokens. Loose change turns up behind the
-  vending machine about one bell in 13.
+  17, and above 150 tokens he has something to take. Loose change turns up behind the vending machine
+  about one bell in 13.
 
-So the day is where the money is, and the night is where you learn and where you survive longer.
-Swapping mid-day costs half of what is left of the day, so changing direction is never free - and it
-matters: a player who stays on day shifts is fired about four times in five, while nights alone last
-the whole month about half the time.
+When it matters, the clock stops and the game asks.
 
-Five hearts: a mishap, or an argument you lose, costs one; a day that ends without damage gives one
-back. Thirty days, then the month closes on your rank and your score.
+- The Consultant wants your credit: **confront him** and you keep it, and lose a heart; **cut a deal**
+  and you keep your health, and pay him off.
+- The auditor wants your tokens: **sit through it** and learn something, or **buy the clerk a coffee**
+  for about half the price.
+- Something breaks and your name is on the ticket: **own it** and lose a heart, or **cover it up**
+  quietly.
+
+So the day is where the money is, and the night is where you learn and where you survive longer. A
+heart can be bought with tokens, and tokens can be earned again - which is the whole decision.
+
+Swapping mid-day costs half of what is left of the day, and the shift you work tomorrow is a free
+choice made the night before. What that adds up to, measured over 160 runs: refusing to pay never
+finishes the month on the day shift, paying every time survives but ends poorer, and the best runs
+pay when a heart is nearly gone, and not before.
+
+Five hearts, and a day that ends without damage gives one back. Thirty days, then the month closes on
+your rank and your score.
 
 I measured all of this rather than guessed it; the numbers come out of a harness that plays whole
 30-day runs headlessly, and they are in the repository.
 
 **One button.** Press Shift, or click the button - that is the whole game.
 
-A run is about ten minutes. The whole game is **one HTML file**: download the zip, unzip it, open
-`index.html` in any browser. No install, no account, no network.
+A run is about twelve minutes of ticking, longer once the cards stop the clock. The whole game is
+**one HTML file**: download the zip, unzip it, open `index.html` in any browser. No install, no
+account, no network.
 
 ## Controls
 
 - **Shift key**, or the on-screen button: change shift
+- **Space**: pause the clock, so you can read the log and go shopping
+- **1** and **2**, or a click: answer a card
 - mouse or finger for everything else
 
 ## Made for Game Off 2026
