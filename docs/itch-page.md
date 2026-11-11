@@ -1,6 +1,13 @@
 # itch.io page copy
 
-Paste-ready text for the submission. Rewrite it in your own voice where you want to.
+The text as it stands on the page, in your words. Three factual corrections are applied here, and one
+paragraph is added: the cards. Everything else is left alone.
+
+- **the survival numbers** were the ones measured while the duel was still a die; the cards changed
+  them, and changed them differently depending on how the player uses them
+- **the run length** is twelve minutes of ticking now, not ten
+- **"nothing to download"** contradicted the project being a Downloadable
+- **the cards** are the game's central decision and the page did not mention them at all
 
 ## Title
 
@@ -12,44 +19,27 @@ A small game about shifts: the ones you work, and the ones you choose.
 
 ## Description
 
-You are the newest hire in an office building. You do not steer the work - it happens on its own,
+You are the newest hire in an office building. You do not steer the work but it happens on its own,
 every second, whether you watch or not. The only real decision is **which shift you are on**, and it
-changes everything.
+changes everything!
 
-A day is twelve bells long. What a bell pays you, and what it costs you, is the whole game:
+- the **day shift** pays about twice as much, and puts the Consultant in the building with you, a
+  rival who takes credit for what you did
+- the **night shift** pays little and teaches fast. The auditor walks the corridors at 02:40, and
+  loose change turns up behind the vending machine
 
-- **day shift**: 8 to 16 tokens a bell, and 3 experience. The money is here. So is the Consultant, a
-  rival who takes credit for what you did: he turns up about one bell in 22, and he is a decision, not
-  a die.
-- **night shift**: half the pay, 4 to 8 tokens a bell, but twice the learning, 6 experience. It is
-  quieter, and it taxes what you hoard: the auditor walks the corridors at 02:40, about one bell in
-  17, and above 150 tokens he has something to take. Loose change turns up behind the vending machine
-  about one bell in 13.
-
-When it matters, the clock stops and the game asks.
-
-- The Consultant wants your credit: **confront him** and you keep it, and lose a heart; **cut a deal**
-  and you keep your health, and pay him off.
-- The auditor wants your tokens: **sit through it** and learn something, or **buy the clerk a coffee**
-  for about half the price.
-- Something breaks and your name is on the ticket: **own it** and lose a heart, or **cover it up**
-  quietly.
-
-So the day is where the money is, and the night is where you learn and where you survive longer. A
-heart can be bought with tokens, and tokens can be earned again - which is the whole decision.
+When it matters the clock stops and the game asks. The Consultant wants your credit: **confront him**
+and you keep it, and lose a heart, or **cut a deal** and you keep your health and pay him off. The
+auditor wants your tokens: **sit through it** and learn something, or **buy the clerk a coffee** for
+about half the price. Something breaks with your name on the ticket: **own it** and lose a heart, or
+**cover it up** quietly.
 
 Swapping mid-day costs half of what is left of the day, and the shift you work tomorrow is a free
-choice made the night before. What that adds up to, measured over 160 runs: refusing to pay never
-finishes the month on the day shift, paying every time survives but ends poorer, and the best runs
-pay when a heart is nearly gone, and not before.
+choice made the night before. Measured over forty runs each: a player who refuses to pay with tokens
+does not finish the month on the day shift at all, and a player who pays when a heart is nearly gone
+finishes thirty-one of those forty on days, and thirty-nine of them at night.
 
-Five hearts, and a day that ends without damage gives one back. Thirty days, then the month closes on
-your rank and your score.
-
-I measured all of this rather than guessed it; the numbers come out of a harness that plays whole
-30-day runs headlessly, and they are in the repository.
-
-**One button.** Press Shift, or click the button - that is the whole game.
+**One button.** Press Shift, or click the button. That is the whole game.
 
 A run is about twelve minutes of ticking, longer once the cards stop the clock. The whole game is
 **one HTML file**: download the zip, unzip it, open `index.html` in any browser. No install, no
@@ -57,10 +47,12 @@ account, no network.
 
 ## Controls
 
-- **Shift key**, or the on-screen button: change shift
-- **Space**: pause the clock, so you can read the log and go shopping
-- **1** and **2**, or a click: answer a card
-- mouse or finger for everything else
+- **Shift key**, or the on-screen Swap button: change shift. Mid-day this costs half of the hours that
+  are left.
+- **Space**, or the Pause button: stop the clock. While paused you can still swap shift and shop.
+- **End of day**: the game stops by itself. Read the recap, pick tomorrow's shift (free), spend your
+  tokens at the vending machine, then press Go home.
+- Mouse or finger for everything else. On a phone there is no Shift or Space key, so use the buttons.
 
 ## Made for Game Off 2026
 
@@ -77,18 +69,10 @@ a room, a character moving through it, the log of the day - and because e-ink ca
 usefully, the decisions happen on a phone. One button, glanceable, always on, part of a wall: that is
 the shape the whole thing was built around.
 
-What you are playing here is deliberately reduced to **one mechanic and a ten-minute run** - which is
-the jam's own advice - and brought to the browser so that anyone can play it. The version at home has
-what this one leaves out: contracts, weekly perks, an inventory, and a basement you can only open
+What you are playing here is deliberately reduced to **one mechanic and a twelve-minute run** - which
+is the jam's own advice - and brought to the browser so that anyone can play it. The version at home
+has what this one leaves out: contracts, weekly perks, an inventory, and a basement you can only open
 with a key that costs more than a month of work.
-
-## AI disclosure
-
-The jam asks participants to declare their use of AI, so, plainly: the engine, the event text, the
-balance pass and the English were written with an **AI coding agent (Hermes)**, working from my
-decisions, my layouts and the rooms I designed. The balance was measured rather than guessed - the
-game ships with a harness that plays whole 30-day runs headlessly, and the numbers in
-`docs/design.md` come out of it.
 
 ## Credits
 
@@ -97,16 +81,23 @@ game ships with a harness that plays whole 30-day runs headlessly, and the numbe
 
 ## Compatibility
 
-Any browser, desktop or mobile, from 2022 onwards, with nothing to install: it is one file, and it
-works offline, straight from the unzipped folder. On a phone you play with the button, since there is
-no Shift key to press.
+Any browser, desktop or mobile, from 2022 onwards, with nothing to install. On a phone you play with
+the button, since there is no Shift key to press.
 
-## Technical note (for the curious)
+## Not on the page, kept here
 
-One HTML file, no dependencies, no build step, no network. The rooms are drawn from maps of 30
-cells by 8, each character a sprite of 8x8 pixels in four tones, with an 18-cell window that
-follows the hero. The same drawing runs on an e-ink reader at home.
+The submission form declares the AI use as **AI Assisted / Code / Text**. This is the longer version,
+if it is ever wanted on the page:
 
-## Source
+> The jam asks participants to declare their use of AI, so, plainly: the engine, the event text, the
+> balance pass and the English were written with an **AI coding agent (Hermes)**, working from my
+> decisions, my layouts and the rooms I designed. The balance was measured rather than guessed - the
+> game ships with a harness that plays whole 30-day runs headlessly, and the numbers in
+> `docs/design.md` come out of it.
 
-https://github.com/Lukather/corridor-3-night-shift
+For the curious, and for the submission form:
+
+- one HTML file, no dependencies, no build step, no network. The rooms are drawn from maps of 30 cells
+  by 8, each character a sprite of 8x8 pixels in four tones, with an 18-cell window that follows the
+  hero. The same drawing runs on an e-ink reader at home.
+- source: https://github.com/Lukather/corridor-3-night-shift
